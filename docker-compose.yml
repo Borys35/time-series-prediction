@@ -13,13 +13,13 @@ services:
 
   postgres:
     image: postgres:latest
-    container_name: tep_historian_db
+    container_name: tep_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: tep_db
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     restart: unless-stopped
