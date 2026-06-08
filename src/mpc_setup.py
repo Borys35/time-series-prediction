@@ -3,7 +3,7 @@ import numpy as np
 
 def create_mpc():
     # load model matrices
-    data = np.load('../notebooks/tep_mpc_model.npz')
+    data = np.load('./notebooks/tep_mpc_model.npz')
     A = data['A']
     B = data['B']
     C = data['C']
@@ -12,8 +12,11 @@ def create_mpc():
     model_type = 'discrete'
     model = do_mpc.model.Model(model_type)
 
-    x = model.set_variable(var_type='_x', var_name='x')
-    u = model.set_variable(var_type='_u', var_name='u')
+    n_states = A.shape[0]
+    n_outputs = C.shape[0]
+
+    x = model.set_variable(var_type='_x', var_name='x', shape=(n_states, 1))
+    u = model.set_variable(var_type='_u', var_name='u', shape=(11, 1))
 
     x_next = A @ x + B @ u
     y = C @ x + D @ u
@@ -23,7 +26,7 @@ def create_mpc():
     # n_steps = 500
 
     model.set_rhs('x', x_next)
-    model.set_rhs('y', y)
+    model.set_expression('y', y)
 
     model.setup()
 

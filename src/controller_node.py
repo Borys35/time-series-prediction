@@ -6,9 +6,9 @@ from mqtt_config import (
     TOPIC_CONTROL_INPUTS, 
     create_mqtt_client
 )
-from mpc_setup import create_mpc_controller
+from mpc_setup import create_mpc
 
-mpc, estimator, model = create_mpc_controller()
+mpc, estimator, model = create_mpc()
 
 client = create_mqtt_client("mpc_controller")
 
