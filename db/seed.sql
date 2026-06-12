@@ -47,3 +47,23 @@ CREATE TABLE sensor_data (
 );
 
 CREATE INDEX idx_sensor_data_timestamp ON sensor_data(timestamp);
+
+DROP TABLE IF EXISTS input_controls;
+
+CREATE TABLE input_controls (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    u1 DOUBLE PRECISION,
+    u2 DOUBLE PRECISION,
+    u3 DOUBLE PRECISION,
+    u4 DOUBLE PRECISION,
+    u5 DOUBLE PRECISION,
+    u6 DOUBLE PRECISION,
+    u7 DOUBLE PRECISION,
+    u8 DOUBLE PRECISION,
+    u9 DOUBLE PRECISION,
+    u10 DOUBLE PRECISION,
+    u11 DOUBLE PRECISION
+);
+
+CREATE INDEX idx_input_controls_timestamp ON input_controls(timestamp);
