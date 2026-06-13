@@ -1,0 +1,10 @@
+{
+  "evaluated_runs": 10,
+  "average_model_nrmse": 0.7859033696237685,
+  "average_naive_nrmse": 0.9515936690725155,
+  "nrmse_improvement_percent": 17.411874924539955,
+  "average_model_mae": 1.5759154035909322,
+  "average_naive_mae": 1.828109964439599,
+  "pca_states": 20,
+  "spectral_radius": 0.9578956658709816
+}

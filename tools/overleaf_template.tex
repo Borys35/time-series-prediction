@@ -1,0 +1,155 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.35cm,headheight=22pt]{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+\newcounter{none}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage{xurl}
+
+\definecolor{tepnavy}{HTML}{173F67}
+\definecolor{tepblue}{HTML}{2B74B8}
+\definecolor{teplight}{HTML}{EAF2FA}
+\definecolor{tepgray}{HTML}{5E6B78}
+\definecolor{tepcode}{HTML}{F4F6F8}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=tepnavy,
+  urlcolor=tepblue,
+  citecolor=tepnavy,
+  pdftitle={$title$},
+  pdfauthor={$for(author)$$author$$sep$, $endfor$}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setcounter{secnumdepth}{-1}
+\setcounter{tocdepth}{2}
+\setlist{itemsep=2pt,topsep=4pt,leftmargin=1.7em}
+\emergencystretch=3em
+
+\titleformat{\section}
+  {\Large\bfseries\color{tepblue}}
+  {}{0pt}{}
+  [\vspace{2pt}\color{teplight}\titlerule]
+\titleformat{\subsection}
+  {\large\bfseries\color{tepnavy}}
+  {}{0pt}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{tepnavy}}
+  {}{0pt}{}
+\titlespacing*{\section}{0pt}{20pt}{9pt}
+\titlespacing*{\subsection}{0pt}{15pt}{5pt}
+\titlespacing*{\subsubsection}{0pt}{11pt}{3pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{tepgray}{$shorttitle$}}
+\fancyhead[R]{\small\color{tepgray}{Hurtownie Danych}}
+\fancyfoot[C]{\small\color{tepgray}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{teplight}\leaders\hrule height \headrulewidth\hfill}}
+
+\captionsetup{
+  font=small,
+  labelfont={bf,color=tepnavy},
+  textfont={it,color=tepgray},
+  justification=centering,
+  skip=6pt
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{tepcode},
+  frame=single,
+  rulecolor=\color{teplight},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  xleftmargin=0.5em,
+  framexleftmargin=0.4em,
+  aboveskip=8pt,
+  belowskip=8pt,
+  literate={ą}{{\k{a}}}1 {ć}{{\'{c}}}1 {ę}{{\k{e}}}1 {ł}{{\l{}}}1
+           {ń}{{\'{n}}}1 {ó}{{\'{o}}}1 {ś}{{\'{s}}}1 {ź}{{\'{z}}}1
+           {ż}{{\.z}}1 {Ą}{{\k{A}}}1 {Ć}{{\'{C}}}1 {Ę}{{\k{E}}}1
+           {Ł}{{\L{}}}1 {Ń}{{\'{N}}}1 {Ó}{{\'{O}}}1 {Ś}{{\'{S}}}1
+           {Ź}{{\'{Z}}}1 {Ż}{{\.Z}}1
+}
+
+\newcommand{\passthrough}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{
+  \sbox\pandoc@box{#1}
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}
+  \else\usebox{\pandoc@box}\fi
+}
+\def\fps@figure{H}
+\makeatother
+
+\renewenvironment{quote}
+  {\begin{list}{}{\leftmargin=1em\rightmargin=0pt}\item\relax
+   \color{tepnavy}\rule{2pt}{\baselineskip}\hspace{0.7em}\begin{minipage}[t]{0.92\linewidth}\color{black}}
+  {\end{minipage}\end{list}}
+
+\begin{document}
+
+\pagenumbering{gobble}
+\begin{titlepage}
+  \thispagestyle{empty}
+  \vspace*{1.4cm}
+  {\color{tepblue}\rule{\textwidth}{2.2pt}}
+  \vspace{1.1cm}
+
+  {\large\bfseries\color{tepblue}{$documenttype$}\par}
+  \vspace{1.2cm}
+  {\raggedright\fontsize{24}{30}\selectfont\bfseries\color{tepnavy}{$title$}\par}
+  \vspace{0.55cm}
+  {\Large\color{tepgray}{$subtitle$}\par}
+
+  \vfill
+  {\large\bfseries Maksymilian Lech, nr indeksu 280136\par}
+  \vspace{0.2cm}
+  {\large\bfseries Borys Kaczmarek, nr indeksu 280068\par}
+  \vspace{0.75cm}
+  {\large Przedmiot: Hurtownie Danych\par}
+
+  \vfill
+  {\color{tepblue}\rule{\textwidth}{1.1pt}}
+  \vspace{0.35cm}
+  {\large Wrocław, 2026\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+$body$
+
+\end{document}

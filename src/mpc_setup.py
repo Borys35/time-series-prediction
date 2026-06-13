@@ -1,56 +1,100 @@
-import do_mpc
 import numpy as np
+from scipy.optimize import lsq_linear
 
-def create_mpc():
-    # load model matrices
-    data = np.load('./notebooks/tep_mpc_model.npz')
-    A = data['A']
-    B = data['B']
-    C = data['C']
-    D = data['D']
+from model_artifact import TEPModel, load_model
 
-    model_type = 'discrete'
-    model = do_mpc.model.Model(model_type)
 
-    n_states = A.shape[0]
-    n_outputs = C.shape[0]
+class LinearMPC:
+    def __init__(
+        self,
+        model: TEPModel,
+        horizon: int = 8,
+        control_weight: float = 0.2,
+        change_weight: float = 0.5,
+    ):
+        self.model = model
+        self.horizon = horizon
+        self.control_weight = control_weight
+        self.change_weight = change_weight
+        self.last_success = True
+        self._build_prediction_matrices()
 
-    x = model.set_variable(var_type='_x', var_name='x', shape=(n_states, 1))
-    u = model.set_variable(var_type='_u', var_name='u', shape=(11, 1))
+    def _build_prediction_matrices(self) -> None:
+        n_x = self.model.n_states
+        n_y = self.model.n_measurements
+        n_u = self.model.n_controls
+        horizon = self.horizon
 
-    x_next = A @ x + B @ u
-    y = C @ x + D @ u
+        self.free_response = np.zeros((horizon * n_y, n_x))
+        self.control_response = np.zeros((horizon * n_y, horizon * n_u))
 
-    # n_states = A.shape[0]
-    # n_outputs = C.shape[0]
-    # n_steps = 500
+        for step in range(horizon):
+            row = slice(step * n_y, (step + 1) * n_y)
+            self.free_response[row] = self.model.C @ np.linalg.matrix_power(
+                self.model.A, step + 1
+            )
+            for control_step in range(step + 1):
+                column = slice(control_step * n_u, (control_step + 1) * n_u)
+                transition = np.linalg.matrix_power(
+                    self.model.A, step - control_step
+                )
+                self.control_response[row, column] = (
+                    self.model.C @ transition @ self.model.B
+                )
 
-    model.set_rhs('x', x_next)
-    model.set_expression('y', y)
+        self.control_difference = np.zeros((horizon * n_u, horizon * n_u))
+        for step in range(horizon):
+            row = slice(step * n_u, (step + 1) * n_u)
+            self.control_difference[row, row] = np.eye(n_u)
+            if step > 0:
+                previous = slice((step - 1) * n_u, step * n_u)
+                self.control_difference[row, previous] = -np.eye(n_u)
 
-    model.setup()
+        lower = self.model.scale_control(self.model.control_lower)
+        upper = self.model.scale_control(self.model.control_upper)
+        self.lower_bounds = np.tile(lower, horizon)
+        self.upper_bounds = np.tile(upper, horizon)
 
-    mpc = do_mpc.controller.MPC(model)
-    
-    setup_mpc = {
-        'n_horizon': 20,
-        't_step': 1,
-        'n_robust': 0,
-        'store_full_solution': True,
-    }
-    mpc.set_param(**setup_mpc)
+    def make_step(
+        self,
+        state: np.ndarray,
+        previous_control: np.ndarray | None = None,
+    ) -> np.ndarray:
+        state = np.asarray(state, dtype=float).reshape(-1)
+        n_u = self.model.n_controls
+        if previous_control is None:
+            previous_control = np.zeros(n_u)
+        previous_control = np.asarray(previous_control, dtype=float).reshape(-1)
 
-    Q = np.eye(41) * 1.0  
-    R = np.eye(11) * 0.1
+        control_penalty = np.sqrt(self.control_weight) * np.eye(
+            self.horizon * n_u
+        )
+        change_penalty = np.sqrt(self.change_weight) * self.control_difference
+        matrix = np.vstack(
+            [self.control_response, control_penalty, change_penalty]
+        )
 
-    mterm = model.aux['y'].T @ Q @ model.aux['y']
-    lterm = model.aux['y'].T @ Q @ model.aux['y']
+        target_changes = np.concatenate(
+            [previous_control, np.zeros((self.horizon - 1) * n_u)]
+        )
+        target = np.concatenate(
+            [
+                -self.free_response @ state,
+                np.zeros(self.horizon * n_u),
+                np.sqrt(self.change_weight) * target_changes,
+            ]
+        )
 
-    mpc.set_objective(mterm=mterm, lterm=lterm)
-    mpc.set_rterm(u=0.1)
+        solution = lsq_linear(
+            matrix,
+            target,
+            bounds=(self.lower_bounds, self.upper_bounds),
+            lsmr_tol="auto",
+            max_iter=100,
+        )
+        self.last_success = bool(solution.success)
+        return solution.x[:n_u].reshape(-1)
 
-    mpc.setup()
 
-    estimator = do_mpc.estimator.StateFeedback(model)
-
-    return mpc, estimator, model
+def create_mpc(model: TEPModel | None = None) -> LinearMPC:
+    return LinearMPC(model or load_model())
