@@ -68,9 +68,17 @@ def start_mpc_controller():
 
             client.publish(TOPIC_CONTROL_INPUTS, np.array2string(previous_u.ravel(), separator=", "))
 
-            print(f"Estimated state: {x_hat.ravel()}")
-            print(f"Control action: {previous_u.ravel()}")
-            connection.execute(text(f'INSERT INTO input_controls (timestamp, u1, u2, u3, u4, u5, u6, u7, u8, u9, u10, u11) VALUES (CURRENT_TIMESTAMP, {', '.join(map(str, previous_u.ravel().tolist()))})'))
+            # print(f"Estimated state: {x_hat.ravel()}")
+            # print(f"Control action: {previous_u.ravel()}")
+            print(f"Sensor data ID: {sensor_data.id}")
+            # trans = connection.begin()
+            try:
+                connection.execute(text(f'INSERT INTO input_controls (timestamp, sensor_data_id, u1, u2, u3, u4, u5, u6, u7, u8, u9, u10, u11) VALUES (CURRENT_TIMESTAMP, {sensor_data.id}, {', '.join(map(str, previous_u.ravel().tolist()))})'))
+                connection.commit()
+            except Exception as e:
+                connection.rollback()
+                print(f"Error occurred while inserting input controls: {e}")
+        
         client.on_message = on_message
         client.connect(BROKER_HOST, BROKER_PORT)
         client.subscribe(TOPIC_SENSORS_OUTPUTS)

@@ -53,6 +53,7 @@ DROP TABLE IF EXISTS input_controls;
 CREATE TABLE input_controls (
     id SERIAL PRIMARY KEY,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    sensor_data_id INTEGER REFERENCES sensor_data(id),
     u1 DOUBLE PRECISION,
     u2 DOUBLE PRECISION,
     u3 DOUBLE PRECISION,
